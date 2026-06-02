@@ -6,10 +6,15 @@
       "use": "@vercel/python"
     }
   ],
-  "routes": [
+  "functions": {
+    "api/index.py": {
+      "includeFiles": "src/dashboard/**"
+    }
+  },
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "api/index.py"
+      "source": "/(.*)",
+      "destination": "/api/index"
     }
   ]
 }
