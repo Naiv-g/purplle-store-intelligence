@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    container_name: purplle-sis-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./data/store_intelligence.db
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  seed:
+    build: .
+    container_name: purplle-sis-seed
+    command: python scripts/seed_demo_data.py
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./data/store_intelligence.db
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: "no"

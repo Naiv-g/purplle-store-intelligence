@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Purplle Store Intelligence System</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0e1a;--surface:#111827;--surface2:#1a2235;--border:#1f2d45;
+  --accent:#a855f7;--accent2:#ec4899;--green:#22c55e;--yellow:#eab308;--red:#ef4444;
+  --text:#f1f5f9;--muted:#64748b;--card:#141d2e;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+.header{background:linear-gradient(135deg,#1a0a2e 0%,#0f172a 50%,#0a1628 100%);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px)}
+.logo{display:flex;align-items:center;gap:.75rem}
+.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.logo h1{font-size:1.1rem;font-weight:700;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo p{font-size:.7rem;color:var(--muted)}
+.header-right{display:flex;align-items:center;gap:1rem}
+.live-badge{display:flex;align-items:center;gap:.4rem;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:20px;padding:.25rem .75rem;font-size:.75rem;color:var(--green)}
+.live-dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.store-select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:.4rem .8rem;border-radius:8px;font-size:.8rem;cursor:pointer}
+.main{padding:1.5rem 2rem;display:grid;gap:1.5rem}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;position:relative;overflow:hidden;transition:transform .2s,border-color .2s}
+.kpi:hover{transform:translateY(-2px);border-color:var(--accent)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gradient,linear-gradient(90deg,var(--accent),var(--accent2)))}
+.kpi-icon{font-size:1.5rem;margin-bottom:.5rem}
+.kpi-value{font-size:1.8rem;font-weight:800;line-height:1}
+.kpi-label{font-size:.7rem;color:var(--muted);margin-top:.3rem;text-transform:uppercase;letter-spacing:.05em}
+.kpi-delta{font-size:.7rem;margin-top:.4rem;display:flex;align-items:center;gap:.2rem}
+.delta-up{color:var(--green)}
+.delta-down{color:var(--red)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid-3{display:grid;grid-template-columns:2fr 1fr;gap:1rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.25rem}
+.card-title{font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.chart-wrap{position:relative;height:220px}
+.funnel-stage{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+.funnel-bar-wrap{flex:1;background:var(--surface2);border-radius:6px;height:10px;overflow:hidden}
+.funnel-bar{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .8s ease}
+.funnel-info{display:flex;justify-content:space-between;min-width:200px;font-size:.75rem}
+.funnel-label{color:var(--text)}
+.funnel-count{color:var(--accent);font-weight:600}
+.funnel-drop{color:var(--red)}
+.anomaly-list{display:flex;flex-direction:column;gap:.6rem;max-height:260px;overflow-y:auto}
+.anomaly-item{background:var(--surface2);border-radius:10px;padding:.8rem;border-left:3px solid var(--red);display:flex;align-items:flex-start;gap:.75rem;animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.anomaly-item.MEDIUM{border-color:var(--yellow)}
+.anomaly-item.LOW{border-color:var(--green)}
+.anomaly-icon{font-size:1.2rem;flex-shrink:0}
+.anomaly-desc{font-size:.78rem;color:var(--text)}
+.anomaly-type{font-size:.65rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.anomaly-action{font-size:.7rem;color:var(--accent);margin-top:.2rem}
+.no-anomaly{text-align:center;color:var(--green);padding:2rem;font-size:.85rem}
+.heatmap-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem}
+.zone-card{background:var(--surface2);border-radius:10px;padding:.9rem;position:relative;overflow:hidden;transition:transform .2s}
+.zone-card:hover{transform:scale(1.02)}
+.zone-heat{position:absolute;top:0;left:0;bottom:0;width:4px;border-radius:2px 0 0 2px}
+.zone-name{font-size:.8rem;font-weight:600;padding-left:.5rem}
+.zone-type{font-size:.65rem;color:var(--muted);padding-left:.5rem}
+.zone-score{font-size:1.4rem;font-weight:800;text-align:right}
+.zone-score-label{font-size:.65rem;color:var(--muted);text-align:right}
+.zone-bars{margin-top:.5rem;display:flex;flex-direction:column;gap:.3rem}
+.zone-bar-row{display:flex;align-items:center;gap:.5rem;font-size:.65rem;color:var(--muted)}
+.zone-mini-bar{flex:1;background:var(--border);border-radius:3px;height:4px;overflow:hidden}
+.zone-mini-fill{height:100%;border-radius:3px}
+.queue-metric{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--border)}
+.queue-metric:last-child{border-bottom:none}
+.qm-label{font-size:.78rem;color:var(--muted)}
+.qm-value{font-size:1rem;font-weight:700}
+.badge{display:inline-block;padding:.15rem .5rem;border-radius:20px;font-size:.65rem;font-weight:600}
+.badge-red{background:rgba(239,68,68,.15);color:var(--red)}
+.badge-green{background:rgba(34,197,94,.15);color:var(--green)}
+.badge-yellow{background:rgba(234,179,8,.15);color:var(--yellow)}
+.footer{text-align:center;padding:1rem;color:var(--muted);font-size:.72rem;border-top:1px solid var(--border)}
+.skeleton{background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.refresh-time{font-size:.68rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon">💜</div>
+    <div>
+      <h1>Store Intelligence System</h1>
+      <p>Purplle Tech Challenge 2026 · Round 2</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <select class="store-select" id="storeSelect" onchange="switchStore(this.value)">
+      <option value="ST1076">Purplle MumbaiWest (ST1076)</option>
+      <option value="ST1008">Purplle DelhiCentral (ST1008)</option>
+    </select>
+    <span class="refresh-time" id="refreshTime">—</span>
+  </div>
+</header>
+
+<main class="main">
+  <!-- KPI Row -->
+  <div class="kpi-grid" id="kpiGrid">
+    <div class="kpi"><div class="kpi-icon">👥</div><div class="kpi-value" id="kpi-visitors">—</div><div class="kpi-label">Unique Visitors</div><div class="kpi-delta delta-up" id="kpi-visitors-d">↑ loading…</div></div>
+    <div class="kpi" style="--gradient:linear-gradient(90deg,#22c55e,#16a34a)"><div class="kpi-icon">🏪</div><div class="kpi-value" id="kpi-occupancy">—</div><div class="kpi-label">Live Occupancy</div><div class="kpi-delta" id="kpi-occ-d"></div></div>
+    <div class="kpi" style="--gradient:linear-gradient(90deg,#eab308,#ca8a04)"><div class="kpi-icon">🛒</div><div class="kpi-value" id="kpi-conversion">—</div><div class="kpi-label">Conversion Rate</div><div class="kpi-delta delta-up" id="kpi-conv-d"></div></div>
+    <div class="kpi" style="--gradient:linear-gradient(90deg,#3b82f6,#1d4ed8)"><div class="kpi-icon">⏱️</div><div class="kpi-value" id="kpi-dwell">—</div><div class="kpi-label">Avg Zone Dwell</div><div class="kpi-delta" id="kpi-dwell-d"></div></div>
+    <div class="kpi" style="--gradient:linear-gradient(90deg,#ec4899,#9333ea)"><div class="kpi-icon">🕐</div><div class="kpi-value" id="kpi-wait">—</div><div class="kpi-label">Avg Queue Wait</div><div class="kpi-delta" id="kpi-wait-d"></div></div>
+    <div class="kpi" style="--gradient:linear-gradient(90deg,#ef4444,#b91c1c)"><div class="kpi-icon">🚶</div><div class="kpi-value" id="kpi-abandon">—</div><div class="kpi-label">Queue Abandonment</div><div class="kpi-delta delta-down" id="kpi-abn-d"></div></div>
+  </div>
+
+  <!-- Charts row -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">📈 Footfall Trend (Hourly)</div>
+      <div class="chart-wrap"><canvas id="footfallChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🎯 Conversion Funnel</div>
+      <div id="funnelContainer" style="padding-top:.5rem"></div>
+    </div>
+  </div>
+
+  <!-- Heatmap + Anomalies -->
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title">🔥 Zone Engagement Heatmap</div>
+      <div class="heatmap-grid" id="heatmapGrid">
+        <div class="skeleton" style="height:100px"></div>
+        <div class="skeleton" style="height:100px"></div>
+        <div class="skeleton" style="height:100px"></div>
+        <div class="skeleton" style="height:100px"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚠️ Active Anomalies</div>
+      <div class="anomaly-list" id="anomalyList"><div class="skeleton" style="height:80px"></div></div>
+    </div>
+  </div>
+
+  <!-- Queue + Demographics -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">🏦 Queue Intelligence</div>
+      <div id="queueMetrics"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">👤 Visitor Demographics</div>
+      <div class="chart-wrap" style="height:180px"><canvas id="demoChart"></canvas></div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  Purplle Store Intelligence System · Built for Purplle Tech Challenge 2026 Round 2 · Real-time AI-powered retail analytics
+</footer>
+
+<script>
+const API = '/api/v1';
+let currentStore = 'ST1076';
+let footfallChart, demoChart;
+let footfallHistory = {};
+
+function switchStore(storeId) {
+  currentStore = storeId;
+  footfallHistory[storeId] = footfallHistory[storeId] || [];
+  refresh();
+}
+
+// ── Footfall Chart ─────────────────────────────────────────────────────
+function initCharts() {
+  const ctx1 = document.getElementById('footfallChart').getContext('2d');
+  footfallChart = new Chart(ctx1, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Visitors',
+        data: [],
+        borderColor: '#a855f7',
+        backgroundColor: 'rgba(168,85,247,0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 3,
+        pointBackgroundColor: '#a855f7',
+      }, {
+        label: 'Converted',
+        data: [],
+        borderColor: '#22c55e',
+        backgroundColor: 'rgba(34,197,94,0.08)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 3,
+        pointBackgroundColor: '#22c55e',
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#64748b', font: { size: 11 } } } },
+      scales: {
+        x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } }
+      }
+    }
+  });
+
+  const ctx2 = document.getElementById('demoChart').getContext('2d');
+  demoChart = new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+      labels: ['18-24', '25-34', '35-44', '45-54', '55+'],
+      datasets: [{
+        data: [22, 38, 24, 12, 4],
+        backgroundColor: ['#a855f7','#ec4899','#3b82f6','#22c55e','#eab308'],
+        borderWidth: 0,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '65%',
+      plugins: {
+        legend: { position: 'right', labels: { color: '#64748b', font: { size: 11 }, boxWidth: 12 } }
+      }
+    }
+  });
+}
+
+// ── KPI Update ─────────────────────────────────────────────────────────
+function updateKPIs(metrics) {
+  document.getElementById('kpi-visitors').textContent = metrics.unique_visitors ?? '—';
+  document.getElementById('kpi-occupancy').textContent = metrics.current_occupancy ?? '—';
+  document.getElementById('kpi-conversion').textContent =
+    metrics.conversion_rate != null ? (metrics.conversion_rate * 100).toFixed(1) + '%' : '—';
+  document.getElementById('kpi-dwell').textContent =
+    metrics.avg_zone_dwell_ms != null ? Math.round(metrics.avg_zone_dwell_ms / 1000) + 's' : '—';
+  document.getElementById('kpi-wait').textContent =
+    metrics.avg_wait_seconds != null ? metrics.avg_wait_seconds.toFixed(0) + 's' : '—';
+  document.getElementById('kpi-abandon').textContent =
+    metrics.queue_abandonment_rate != null ? (metrics.queue_abandonment_rate * 100).toFixed(1) + '%' : '—';
+}
+
+// ── Funnel ─────────────────────────────────────────────────────────────
+function updateFunnel(funnel) {
+  const container = document.getElementById('funnelContainer');
+  const maxCount = funnel.stages[0]?.count || 1;
+  container.innerHTML = funnel.stages.map(s => `
+    <div class="funnel-stage">
+      <div style="flex:1">
+        <div class="funnel-info">
+          <span class="funnel-label">${s.label}</span>
+          <span style="display:flex;gap:.75rem">
+            <span class="funnel-count">${s.count}</span>
+            ${s.drop_off_pct > 0 ? `<span class="funnel-drop">-${s.drop_off_pct}%</span>` : ''}
+          </span>
+        </div>
+        <div class="funnel-bar-wrap" style="margin-top:.3rem">
+          <div class="funnel-bar" style="width:${(s.count/maxCount*100).toFixed(1)}%"></div>
+        </div>
+      </div>
+    </div>
+  `).join('') + `<div style="text-align:right;margin-top:.75rem;font-size:.75rem;color:var(--accent)">
+    Overall conversion: <strong>${funnel.overall_conversion_rate}%</strong>
+  </div>`;
+}
+
+// ── Heatmap ────────────────────────────────────────────────────────────
+function heatColor(score) {
+  if (score > 75) return '#ef4444';
+  if (score > 50) return '#f97316';
+  if (score > 25) return '#eab308';
+  return '#22c55e';
+}
+
+function updateHeatmap(heatmap) {
+  const grid = document.getElementById('heatmapGrid');
+  if (!heatmap.cells.length) {
+    grid.innerHTML = '<div style="color:var(--muted);font-size:.8rem;grid-column:span 2;text-align:center;padding:2rem">No zone data yet — ingest events to populate</div>';
+    return;
+  }
+  grid.innerHTML = heatmap.cells.map(cell => `
+    <div class="zone-card">
+      <div class="zone-heat" style="background:${heatColor(cell.combined_score)}"></div>
+      <div style="display:flex;justify-content:space-between">
+        <div>
+          <div class="zone-name">${cell.zone_name}</div>
+          <div class="zone-type">${cell.zone_type}</div>
+        </div>
+        <div>
+          <div class="zone-score" style="color:${heatColor(cell.combined_score)}">${cell.combined_score.toFixed(0)}</div>
+          <div class="zone-score-label">score</div>
+        </div>
+      </div>
+      <div class="zone-bars">
+        <div class="zone-bar-row">
+          <span>Visits</span>
+          <div class="zone-mini-bar"><div class="zone-mini-fill" style="width:${cell.visit_score}%;background:#a855f7"></div></div>
+          <span>${cell.raw_visits}</span>
+        </div>
+        <div class="zone-bar-row">
+          <span>Dwell</span>
+          <div class="zone-mini-bar"><div class="zone-mini-fill" style="width:${cell.dwell_score}%;background:#ec4899"></div></div>
+          <span>${(cell.raw_dwell_ms/1000).toFixed(0)}s</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Anomalies ──────────────────────────────────────────────────────────
+const ANOMALY_ICONS = {
+  QUEUE_SPIKE: '🚨', HIGH_ABANDONMENT: '🏃', DEAD_ZONE: '💤',
+  STALE_FEED: '📷', OVERCROWDING: '⚠️', CONVERSION_DROP: '📉'
+};
+
+function updateAnomalies(data) {
+  const list = document.getElementById('anomalyList');
+  if (!data.active_anomalies.length) {
+    list.innerHTML = '<div class="no-anomaly">✅ No active anomalies<br><small style="color:var(--muted)">System operating normally</small></div>';
+    return;
+  }
+  list.innerHTML = data.active_anomalies.map(a => `
+    <div class="anomaly-item ${a.severity}">
+      <span class="anomaly-icon">${ANOMALY_ICONS[a.anomaly_type] || '⚠️'}</span>
+      <div style="flex:1">
+        <div class="anomaly-type">${a.anomaly_type.replace(/_/g,' ')} · <span class="badge badge-${a.severity === 'CRITICAL' ? 'red' : a.severity === 'HIGH' ? 'red' : a.severity === 'MEDIUM' ? 'yellow' : 'green'}">${a.severity}</span></div>
+        <div class="anomaly-desc">${a.description}</div>
+        ${a.recommended_action ? `<div class="anomaly-action">💡 ${a.recommended_action}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Queue Metrics ──────────────────────────────────────────────────────
+function updateQueue(metrics) {
+  document.getElementById('queueMetrics').innerHTML = `
+    <div class="queue-metric"><span class="qm-label">Queue Depth</span><span class="qm-value">${metrics.queue_depth ?? 0}</span></div>
+    <div class="queue-metric"><span class="qm-label">Avg Wait Time</span><span class="qm-value">${metrics.avg_wait_seconds?.toFixed(0) ?? 0}s</span></div>
+    <div class="queue-metric"><span class="qm-label">Abandonment Rate</span>
+      <span class="qm-value" style="color:${(metrics.queue_abandonment_rate||0)>.3?'var(--red)':'var(--green)'}">
+        ${((metrics.queue_abandonment_rate||0)*100).toFixed(1)}%
+      </span>
+    </div>
+    <div class="queue-metric"><span class="qm-label">Staff Count</span><span class="qm-value">${metrics.staff_count ?? 0}</span></div>
+    <div class="queue-metric"><span class="qm-label">Net Visitors (window)</span><span class="qm-value">${metrics.net_visitors ?? 0}</span></div>
+  `;
+}
+
+// ── Footfall history chart ─────────────────────────────────────────────
+function pushFootfall(metrics) {
+  if (!footfallHistory[currentStore]) footfallHistory[currentStore] = [];
+  const hist = footfallHistory[currentStore];
+  const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  hist.push({ t: now, v: metrics.unique_visitors, c: Math.round((metrics.conversion_rate||0) * metrics.unique_visitors) });
+  if (hist.length > 20) hist.shift();
+  footfallChart.data.labels = hist.map(h => h.t);
+  footfallChart.data.datasets[0].data = hist.map(h => h.v);
+  footfallChart.data.datasets[1].data = hist.map(h => h.c);
+  footfallChart.update('none');
+}
+
+// ── Main Refresh ───────────────────────────────────────────────────────
+async function refresh() {
+  try {
+    const [metricsR, funnelR, heatmapR, anomalyR] = await Promise.all([
+      fetch(`${API}/stores/${currentStore}/metrics?window_minutes=60`),
+      fetch(`${API}/stores/${currentStore}/funnel?period_hours=24`),
+      fetch(`${API}/stores/${currentStore}/heatmap?window_hours=4`),
+      fetch(`${API}/stores/${currentStore}/anomalies`),
+    ]);
+
+    if (metricsR.ok) {
+      const m = await metricsR.json();
+      updateKPIs(m);
+      updateQueue(m);
+      pushFootfall(m);
+    }
+    if (funnelR.ok) updateFunnel(await funnelR.json());
+    if (heatmapR.ok) updateHeatmap(await heatmapR.json());
+    if (anomalyR.ok) updateAnomalies(await anomalyR.json());
+
+    document.getElementById('refreshTime').textContent =
+      'Updated ' + new Date().toLocaleTimeString();
+  } catch(e) {
+    console.warn('Refresh error:', e);
+  }
+}
+
+// ── Init ───────────────────────────────────────────────────────────────
+initCharts();
+refresh();
+setInterval(refresh, 15000); // refresh every 15s
+</script>
+</body>
+</html>

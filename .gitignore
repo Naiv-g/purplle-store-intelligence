@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# Database (do NOT commit)
+data/*.db
+data/*.db-shm
+data/*.db-wal
+
+# YOLO weights
+*.pt
+
+# Video files (do NOT commit per rules)
+*.mp4
+*.avi
+*.mov
+
+# Env
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

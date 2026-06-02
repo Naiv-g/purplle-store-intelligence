@@ -1,0 +1,98 @@
+{
+  "stores": [
+    {
+      "store_id": "ST1076",
+      "store_code": "store_1076",
+      "store_name": "Purplle MumbaiWest",
+      "city": "Mumbai",
+      "open_hours": { "open": "10:00", "close": "22:00" },
+      "cameras": [
+        { "camera_id": "CAM1", "type": "entry", "description": "Main Entry Threshold" },
+        { "camera_id": "CAM2", "type": "zone", "description": "Left Shelf Zone" },
+        { "camera_id": "CAM3", "type": "zone", "description": "Center Display Zone" },
+        { "camera_id": "CAM4", "type": "zone", "description": "Lipstick Aisle Zone" },
+        { "camera_id": "CAM5", "type": "billing", "description": "Billing Counter" }
+      ],
+      "zones": [
+        {
+          "zone_id": "PURPLLE_MUM_1076_Z01",
+          "zone_name": "Left Shelf",
+          "zone_type": "SHELF",
+          "is_revenue_zone": true,
+          "camera_id": "CAM2",
+          "bbox": [100, 150, 500, 400],
+          "expected_dwell_ms": 45000
+        },
+        {
+          "zone_id": "PURPLLE_MUM_1076_Z02",
+          "zone_name": "Center Display",
+          "zone_type": "DISPLAY",
+          "is_revenue_zone": true,
+          "camera_id": "CAM3",
+          "bbox": [200, 200, 600, 500],
+          "expected_dwell_ms": 60000
+        },
+        {
+          "zone_id": "PURPLLE_MUM_1076_Z03",
+          "zone_name": "Lipstick Aisle",
+          "zone_type": "SHELF",
+          "is_revenue_zone": true,
+          "camera_id": "CAM4",
+          "bbox": [300, 100, 700, 450],
+          "expected_dwell_ms": 55000
+        },
+        {
+          "zone_id": "PURPLLE_MUM_1076_Z_BILLING_01",
+          "zone_name": "Billing Counter Queue",
+          "zone_type": "BILLING",
+          "is_revenue_zone": true,
+          "camera_id": "CAM5",
+          "bbox": [50, 50, 300, 250],
+          "expected_dwell_ms": 120000
+        }
+      ]
+    },
+    {
+      "store_id": "ST1008",
+      "store_code": "store_1008",
+      "store_name": "Purplle DelhiCentral",
+      "city": "Delhi",
+      "open_hours": { "open": "10:00", "close": "21:30" },
+      "cameras": [
+        { "camera_id": "CAM1", "type": "entry", "description": "Entry 1" },
+        { "camera_id": "CAM2", "type": "entry", "description": "Entry 2" },
+        { "camera_id": "CAM3", "type": "zone", "description": "Zone Floor" },
+        { "camera_id": "CAM4", "type": "billing", "description": "Billing Area" }
+      ],
+      "zones": [
+        {
+          "zone_id": "ST1008_Z01",
+          "zone_name": "Skincare Section",
+          "zone_type": "SHELF",
+          "is_revenue_zone": true,
+          "camera_id": "CAM3",
+          "bbox": [100, 100, 500, 400],
+          "expected_dwell_ms": 50000
+        },
+        {
+          "zone_id": "ST1008_Z02",
+          "zone_name": "Makeup Aisle",
+          "zone_type": "SHELF",
+          "is_revenue_zone": true,
+          "camera_id": "CAM3",
+          "bbox": [500, 100, 900, 400],
+          "expected_dwell_ms": 55000
+        },
+        {
+          "zone_id": "ST1008_Z_BILLING_01",
+          "zone_name": "Billing Counter",
+          "zone_type": "BILLING",
+          "is_revenue_zone": true,
+          "camera_id": "CAM4",
+          "bbox": [100, 50, 400, 300],
+          "expected_dwell_ms": 90000
+        }
+      ]
+    }
+  ]
+}
