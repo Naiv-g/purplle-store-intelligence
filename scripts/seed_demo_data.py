@@ -23,7 +23,7 @@ from typing import List
 import httpx
 from loguru import logger
 
-BASE_URL = "http://localhost:8000/api/v1"
+BASE_URL = "https://purplle-store-intelligence.vercel.app/api/v1"
 DATA_DIR = Path(__file__).parent.parent / "data"
 CONFIG_DIR = Path(__file__).parent.parent / "config"
 

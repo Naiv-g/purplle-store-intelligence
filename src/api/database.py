@@ -21,8 +21,8 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 # Engine
 # ──────────────────────────────────────────────
 
-# Neon / Render give a postgres:// URL — convert to async driver
-_raw_url = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./data/store_intelligence.db")
+# Neon / Render / Vercel give a postgres:// URL — convert to async driver
+_raw_url = os.getenv("DATABASE_URL") or os.getenv("POSTGRES_URL", "sqlite+aiosqlite:///./data/store_intelligence.db")
 
 if _raw_url.startswith("postgres://"):
     # Neon uses postgres://, SQLAlchemy needs postgresql+asyncpg://
