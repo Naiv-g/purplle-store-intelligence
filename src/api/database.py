@@ -34,10 +34,15 @@ else:
 
 _is_sqlite = "sqlite" in DATABASE_URL
 
+if _is_sqlite:
+    _connect_args = {"check_same_thread": False}
+else:
+    _connect_args = {"ssl": True}
+
 engine = create_async_engine(
     DATABASE_URL,
     echo=False,
-    connect_args={"check_same_thread": False} if _is_sqlite else {},
+    connect_args=_connect_args,
 )
 
 AsyncSessionLocal = async_sessionmaker(
