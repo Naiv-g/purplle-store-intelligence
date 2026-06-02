@@ -78,8 +78,9 @@ if static_dir.exists():
         return FileResponse(str(static_dir / "index.html"))
 
 
-# ── Include routes ───────────────────────────────────────────────────────────
+# Include routes at both /api/v1 (for local) and /v1 (for Vercel path stripping)
 app.include_router(intel_router, prefix="/api/v1")
+app.include_router(intel_router, prefix="/v1")
 
 
 @app.get("/api/v1/uptime", tags=["System"])

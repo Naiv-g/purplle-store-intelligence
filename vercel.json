@@ -1,18 +1,13 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "api/\\[\\.\\.\\.path\\].py",
-      "use": "@vercel/python",
-      "config": {
-        "includeFiles": "src/dashboard/**"
-      }
+  "functions": {
+    "api/**/*.py": {
+      "includeFiles": "src/dashboard/**"
     }
-  ],
-  "routes": [
+  },
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "api/[...path].py"
+      "source": "/(.*)",
+      "destination": "/api"
     }
   ]
 }
