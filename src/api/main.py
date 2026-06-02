@@ -21,8 +21,12 @@ START_TIME = time.time()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("🚀 Initialising database…")
-    await init_db()
-    logger.info("✅ Database ready")
+    try:
+        await init_db()
+        logger.info("✅ Database ready")
+    except Exception as e:
+        logger.error(f"❌ Database init failed: {e}")
+        app.state.db_error = str(e)
     yield
     logger.info("👋 Shutting down")
 

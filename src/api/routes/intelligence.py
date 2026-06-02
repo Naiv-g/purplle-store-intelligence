@@ -6,7 +6,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.responses import JSONResponse
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -162,9 +163,13 @@ async def get_visitor_journey(
 
 # ─── Health Check ────────────────────────────────────────────────────────────
 
-@router.get("/health", response_model=HealthResponse, tags=["System"])
-async def health_check(session: AsyncSession = Depends(get_session)):
+@router.get("/health", tags=["System"])
+async def health_check(request: Request, session: AsyncSession = Depends(get_session)):
     """Pipeline health: DB connectivity, event count, stale camera detection."""
+    db_error = getattr(request.app.state, "db_error", None)
+    if db_error:
+        return JSONResponse(status_code=500, content={"status": "error", "db_error": db_error})
+    
     from datetime import timedelta
     now = datetime.utcnow()
 
